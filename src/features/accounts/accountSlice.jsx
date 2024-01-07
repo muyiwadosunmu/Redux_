@@ -48,7 +48,7 @@ export function deposit(amount, currency) {
       type: "account/deposit",
       payload: amount,
     };
-  return async function name(dispatch, getState) {
+  return async function (dispatch, getState) {
     dispatch({ type: "account/convertingCurrency" });
     // API Call
     const host = "api.frankfurter.app";
