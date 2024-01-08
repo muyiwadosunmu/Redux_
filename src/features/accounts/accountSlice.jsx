@@ -1,11 +1,48 @@
-const initialStateAccount = {
+import { createSlice } from "@reduxjs/toolkit";
+
+const initialState = {
   balance: 0,
   loan: 0,
   loanPurpose: "",
   isLoading: false,
 };
 
-export default function accountReducer(state = initialStateAccount, action) {
+const accountSlice = createSlice({
+  name: "account",
+  initialState: initialState,
+  reducers: {
+    deposit(state, action) {
+      state.balance = state.balance + action.payload;
+    },
+    withdraw(state, action) {
+      state.balance = state.balance - action.payload;
+    },
+    // By default action creators take in a single argument but we have a way around it
+    requestLoan: {
+      prepare(amount, purpose) {
+        return { payload: { amount, purpose } };
+      },
+      reducer(state, action) {
+        if (state.loan > 0) return;
+        state.loan = action.payload.amount;
+        state.loanPurpose = action.payload.purpose;
+        state.balance = state.balance - action.payload.amount;
+      },
+    },
+    payLoan(state) {
+      state.balance = state.balance - state.loan; // This needed to come first as we encountered some pitfalls of mutating state directly
+      state.loan = 0;
+      state.loanPurpose = "";
+    },
+  },
+});
+console.log(accountSlice);
+
+export const { deposit, withdraw, requestLoan, payLoan } = accountSlice.actions;
+export default accountSlice.reducer;
+/**
+ * 
+export default function accountReducer(state = initialState, action) {
   switch (action.type) {
     case "account/deposit": // They should model what happens
       return {
@@ -83,3 +120,6 @@ export function payLoan() {
     type: "account/payLoan",
   };
 }
+
+ * 
+ */
